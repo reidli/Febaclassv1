@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <title>FeedbaClass</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="stylesheets/style.css">
+  </head>
+
+  <body>
+   <div id="input">
+    <p><strong><h1 style="text-align:center;font-size:58px">FeedbaClass</h1></strong></p>
+	<img src="http://vikingartz.com/img/up.png" id="img_test" width="300" height="250">
+    <!-- <form action="/upload" method="POST" enctype="multipart/form-data"> -->
+      Select a picture to upload:
+      <input type="file" id="file">
+      <input type="button" id="upload" value="Upload File">
+      <input type="button" id="classify" value="classify">
+      <!-- <input type="file" accept="img/*;capture=camera"> -->
+      <button id="run">开启网络摄像头</button><Br/>
+      <video id="webcam" width="320" height="240" style="margin-left:10px; margin-top:20px" ></video>
+      <canvas id="test" width="320" height="240" style="margin-left:10px; margin-top:20px"></canvas>
+      <button id="snap" width="320" height="240" >拍摄</button>
+      <button id="cupload">上传</button>
+   </div>
+
+   <div id="output"></div>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script>
+        $("#upload").click(function(){
+            var myPhoto = $('#file')[0].files[0];
+            var oMyForm = new FormData();
+            var testImg=document.getElementById("img_test");
+            oMyForm.append("name", 'upload_file');
+            oMyForm.append("userfile", myPhoto);
+            console.log(myPhoto);
+            $.ajax({
+                type : 'POST',
+                url : '/upload',
+                cache : false,  //不需要缓存
+                processData : false,    //不需要进行数据转换
+                contentType : false, //默认数据传输方式是application,改为false，编程multipart
+                data : oMyForm,
+                dataType : 'json'
+            }).done(function(data){
+               //data显示
+                console.log(data);
+                //document.write("<img src='"+data.uploadPath+"?t="+Math.random()+"' height='240' weight='240' alt='' name='pic' hspace='1000' vspace='50'/>");
+                alert(data.errMsg);
+                testImg.src=data.uploadPath;
+            }).fail(function(err){
+                console.error(err);
+            });
+        });
+        
+        $("#classify").click(function(){
+            var classify_data=new FormData();
+            classify_data.append("tips","1");
+            var testImg=document.getElementById("img_test");
+            $.ajax({
+                type : 'GET',
+                url : '/classify',
+                cache : false,  //不需要缓存
+                processData : false,    //不需要进行数据转换
+                contentType : false, //默认数据传输方式是application,改为false，编程multipart
+                data : classify_data,
+                dataType : 'json'
+            }).done(function(rdata){
+                console.log(rdata);
+                alert(rdata.errMsg+"，共识别出"+rdata.facenum+"张人脸");
+                testImg.src=rdata.classify_image_path[0];
+            }).fail(function(err){
+                console.error(err);
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+        navigator.getUserMedia || (navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia);
+        
+        if (!navigator.getUserMedia) {
+            alert("您的浏览器不支持");
+        }
+        
+        var btn = document.getElementById('run');
+        btn.onclick = startWebcam;
+        
+        function startWebcam(e) {
+            navigator.getUserMedia({
+                video: true,
+                audio: true
+            }, onSuccess, onError);
+        
+            function onSuccess(stream) {
+        
+                var video = document.getElementById('webcam');
+        
+                if (window.URL) {
+                    video.src = window.URL.createObjectURL(stream);
+                } else {
+                    video.src = stream;
+                }
+        
+                video.autoplay = true;
+            }
+        
+            function onError() {}
+        }
+        </script>
+        <script type="text/javascript">
+            navigator.getUserMedia || (navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia);
+            
+            if (!navigator.getUserMedia) {
+                alert("您的浏览器不支持");
+            }
+            
+            var btn = document.getElementById('run');
+            var canvas=document.getElementById("test");
+            var video=document.getElementById("webcam");
+            
+            btn.onclick = startWebcam;
+            
+            function startWebcam(e) {
+                navigator.getUserMedia({
+                    video: true
+                   // audio: true
+                }, onSuccess, onError);
+            
+                function onSuccess(stream) {
+            
+                    var video = document.getElementById('webcam');
+            
+                    if (window.URL) {
+                        video.src = window.URL.createObjectURL(stream);
+                    } else {
+                        video.src = stream;
+                    }
+            
+                    video.autoplay = true;
+                }
+            
+                function onError() {}
+            }
+            document.getElementById("snap").addEventListener("click",function(){
+                console.log("snap begin")
+                var context=canvas.getContext("2d");
+                var img_test=context.drawImage(video,0,0,320,240);
+                console.log(img_test);
+                console.log("snap end");
+            })
+
+            $("#cupload").click(function(){
+                var dataURL = canvas.toDataURL("image/jpeg");
+                dataURL = dataURL.replace("data:image/png;base64,", "");
+                var file = dataURLtoFile(dataURL,'test.png');
+                var formdata =new FormData();
+                formdata.append("userfile",file);
+                formdata.append("name", 'upload_file');
+                $.ajax({
+                    url: "/camera_upload",
+                    type: "POST",
+                    data: formdata,
+                    processData: false,
+                    contentType: false,
+                    dataType : 'json'
+                }).done(function (respond) {
+                    //alert(respond);
+                    alert(respond.errMsg);
+                    
+                }).fail(function(err){
+                    console.error(err);
+                });
+            })
+            //dataURL change to File
+            function dataURLtoFile(dataurl, filename) {
+                    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                    while(n--){
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+                    return new File([u8arr], filename, {type:mime});
+            }
+            </script>
+  </body>
+  <!-- <script src="index.js"></script> -->
+
+</html>
+
+
+

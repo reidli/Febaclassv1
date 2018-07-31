@@ -1,0 +1,49 @@
+{
+  "images": [
+    {
+      "classifiers": [
+        {
+          "classifier_id": "DefaultCustomModel_99848928",
+          "name": "Default Custom Model",
+          "classes": [
+            {
+              "class": "1angry",
+              "score": 0.9
+            },
+            {
+              "class": "2contempt",
+              "score": 0.073
+            },
+            {
+              "class": "3disgust",
+              "score": 0.006
+            },
+            {
+              "class": "4fear",
+              "score": 0.006
+            },
+            {
+              "class": "5happy",
+              "score": 0.03
+            },
+            {
+              "class": "6sad",
+              "score": 0
+            },
+            {
+              "class": "7surprise",
+              "score": 0
+            },
+            {
+              "class": "normal",
+              "score": 0.003
+            }
+          ]
+        }
+      ],
+      "image": "output2.jpg"
+    }
+  ],
+  "images_processed": 1,
+  "custom_classes": 8
+}

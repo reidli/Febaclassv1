@@ -1,0 +1,47 @@
+# ---
+# declared-services:
+#   personality-insights-tutorial:
+#     label: personality_insights
+#     plan: lite
+# applications:
+# - path: .
+#   memory: 64M
+#   instances: 1
+#   domain: mybluemix.net
+#   name: t0915969-app
+#   host: t0915969-app
+#   disk_quota: 1024M
+#   services:
+#   - personality-insights-tutorial
+# ---
+# declared-services:
+#   visual-recognition-service:
+#     label: watson_vision_combined
+#     plan: lite
+# applications:
+# - name: visual-recognition-lihaomin
+#   host: visual-recognition-lihaomin
+#   path: .
+#   command: npm start
+#   memory: 256M
+#   instances: 1
+#   services:
+#   - Visual Recognition-t7
+#   env:
+#     NODE_ENV: production
+---
+declared-services:
+  visual-recognition-service:
+    label: watson_vision_combined
+    plan: standard
+applications:
+- name: face-2
+  host: face-2
+  path: .
+  command: npm start
+  memory: 256M
+  instances: 1
+  services:
+  - Visual Recognition-ywq-1
+  env:
+    NODE_ENV: production

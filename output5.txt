@@ -1,0 +1,49 @@
+{
+  "images": [
+    {
+      "classifiers": [
+        {
+          "classifier_id": "EMOTION_1310788927",
+          "name": "EMOTION",
+          "classes": [
+            {
+              "class": "1angry",
+              "score": 0.649
+            },
+            {
+              "class": "2contempt",
+              "score": 0.04
+            },
+            {
+              "class": "3disgust",
+              "score": 0.181
+            },
+            {
+              "class": "4fear",
+              "score": 0.021
+            },
+            {
+              "class": "5happy",
+              "score": 0.501
+            },
+            {
+              "class": "6sad",
+              "score": 0
+            },
+            {
+              "class": "7surprise",
+              "score": 0.001
+            },
+            {
+              "class": "normal",
+              "score": 0.022
+            }
+          ]
+        }
+      ],
+      "image": "output0.jpg"
+    }
+  ],
+  "images_processed": 1,
+  "custom_classes": 8
+}

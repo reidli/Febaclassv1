@@ -1,0 +1,326 @@
+<!DOCTYPE HTML>
+<!--
+	Colorized by TEMPLATED
+    templated.co @templatedco
+    Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+-->
+<html>
+	<head>
+		<title>Feedbaclass</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="description" content="" />
+		<meta name="keywords" content="" />
+		<link href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css'>
+		<!--[if lte IE 8]><script src="js/html5shiv.js"></script><![endif]-->
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+		<script src="js/skel.min.js"></script>
+		<script src="js/skel-panels.min.js"></script>
+		<script src="js/init.js"></script>
+		<noscript>
+			<link rel="stylesheet" href="css/skel-noscript.css" />
+			<link rel="stylesheet" href="css/style.css" />
+			<link rel="stylesheet" href="css/style-desktop.css" />
+		</noscript>
+		<!--[if lte IE 8]><link rel="stylesheet" href="css/ie/v8.css" /><![endif]-->
+		<!--[if lte IE 9]><link rel="stylesheet" href="css/ie/v9.css" /><![endif]-->
+	</head>
+	<body>
+
+	<!-- Header -->
+		<div id="header">
+			<div id="logo-wrapper">
+				<div class="container">
+						
+					<!-- Logo -->
+						<div id="logo">
+							<h1><a href="#">Feedbaclass</a></h1>
+							<span>Design by Group 3</span>
+						</div>
+					
+				</div>
+			</div>			
+			<div class="container">
+				<!-- Nav -->
+					<nav id="nav">
+						<ul>
+							<li><a href="index.html">Homepage</a></li>
+							<li><a href="Picture.html">Picture</a></li>
+							<li class="active"><a href="Camera.html">Camera</a></li>
+
+						</ul>
+					</nav>
+			</div>
+		</div>
+	<!-- Header -->
+		
+	<!-- Banner -->
+		<div id="banner">
+			<div class="container">
+			</div>
+		</div>
+	<!-- /Banner -->
+
+	<!-- Main -->
+		<div id="main">
+
+			<!-- Main Content -->
+			<div class="container">
+				<div class="row">
+				
+
+
+					<div id="sidebar1" class="3u">
+						<section>
+							<header>
+								<h2>Selfie</h2>
+							</header>
+							<ul class="default alt">
+								<li class="fa fa-angle-right"><a ><button id="run">Open the camera</a></li>
+								<li class="fa fa-angle-right"><a ><button id="snap" width="320" height="240" >Snap</button></a></li>
+								<li class="fa fa-angle-right"><a ><button id="cupload">Upload</button></a></li>
+								<li class="fa fa-angle-right"><a><input type="button" id="classify" value="Classify"></a></li>
+							</ul>
+						</section>
+
+					</div>
+				
+				</div>
+			
+			</div>
+			<div class="container">
+				<div class="row">
+					<section class="3u"> 
+						<video id="webcam" width="320" height="240" style="margin-left:10px; margin-top:20px" ></video>
+					</section>
+					<section class="3u">
+						<canvas id="test" width="320" height="240" style="margin-left:10px; margin-top:20px"></canvas>
+					</section>
+					<section class="3u">
+						<a  class="image full"><canvas id="chartmain" height="200" width="200" ></canvas></a>
+					</section>
+					<section class="3u">
+						<a class="image full"><img src= "http://p3.pstatp.com/origin/470200044cdf44389a9f"     id="img_emoji" width="250" height="250"/></a>
+					</section>
+			    </div>
+			
+			</div>
+			<!-- /Main Content -->
+			
+		</div>
+	<!-- /Main -->
+	<script src="js/jquery-3.1.1.min.js"></script>
+	<script src="js/echarts.js"></script>
+	<script type="text/javascript">
+            navigator.getUserMedia || (navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia);
+            
+            if (!navigator.getUserMedia) {
+                alert("您的浏览器不支持");
+            }
+            
+            var btn = document.getElementById('run');
+            var canvas=document.getElementById("test");
+            var video=document.getElementById("webcam");
+            
+            btn.onclick = startWebcam;
+            
+            function startWebcam(e) {
+                navigator.getUserMedia({
+                    video: true
+                   // audio: true
+                }, onSuccess, onError);
+            
+                function onSuccess(stream) {
+            
+                    var video = document.getElementById('webcam');
+            
+                    if (window.URL) {
+                        video.src = window.URL.createObjectURL(stream);
+                    } else {
+                        video.src = stream;
+                    }
+            
+                    video.autoplay = true;
+                }
+            
+                function onError() {}
+            }
+            document.getElementById("snap").addEventListener("click",function(){
+                console.log("snap begin")
+                var context=canvas.getContext("2d");
+                var img_test=context.drawImage(video,0,0,320,240);
+                console.log(img_test);
+                console.log("snap end");
+            })
+
+            $("#cupload").click(function(){
+                var dataURL = canvas.toDataURL("image/jpeg");
+                dataURL = dataURL.replace("data:image/png;base64,", "");
+                var file = dataURLtoFile(dataURL,'test.png');
+                var formdata =new FormData();
+                formdata.append("userfile",file);
+                formdata.append("name", 'upload_file');
+                $.ajax({
+                    url: "/camera_upload",
+                    type: "POST",
+                    data: formdata,
+                    processData: false,
+                    contentType: false,
+                    dataType : 'json'
+                }).done(function (respond) {
+                    //alert(respond);
+                    alert(respond.errMsg);
+                    
+                }).fail(function(err){
+                    console.error(err);
+                });
+            })
+			        $("#classify").click(function(){
+            //console.log("classify");
+		var arr = [];
+		var info_class=["angry","disgust","happy","netural","sad","surprise"];
+		var info_score= new Array();
+		var stat_num=new Array(0,0,0,0,0,0);
+		var stat_proportion= new Array(0.0,0.0,0.0,0.0,0.0,0.0);
+            var classify_data=new FormData();
+            classify_data.append("tips","1");
+            $.ajax({
+                type : 'GET',
+                url : '/classify',
+                cache : false,  //不需要缓存
+                processData : false,    //不需要进行数据转换
+                contentType : false, //默认数据传输方式是application,改为false，编程multipart
+                data : classify_data,
+                dataType : 'json'
+            }).done(function(rdata){
+			
+			var arr = new Array();   //先声明一维
+			for(var k=0;k<rdata.facenum;k++){        //一维长度为i,i为变量，可以根据实际情况改变  
+			arr[k]=new Array();    //声明二维，每一个一维数组里面的一个元素都是一个数组
+			}
+			var j;
+			var max,maxnum,temp;
+			console.log(rdata);
+			for(var i=1;i-1<rdata.facenum;i++){
+			    arr[i] = JSON.parse(rdata.classify_mod_array[i]);
+				
+				info_score[0]=(arr[i].images["0"].classifiers["0"].classes["0"].score);
+				for(j=1;j<6;j++){
+				info_score[j]=(arr[i].images["0"].classifiers["0"].classes[j].score);
+				}
+				for(j=0;j<6;j++){
+			//	console.log(info_class[j]+":"+info_score[j]);
+				}
+			//	console.log("\n");
+				max=info_score[0],maxnum=0;
+				for(j=0;j<6;j++){
+				    if(info_score[j]>max){
+					    max=info_score[j];
+						maxnum=j;
+					}
+				}
+				switch(maxnum){
+				    case 0:
+					    stat_num[maxnum]+=1;
+					 break;
+				    case 1:
+					    stat_num[maxnum]+=1;
+					 break;
+				    case 2:
+					    stat_num[maxnum]+=1;
+					 break;
+				    case 3:
+					    stat_num[maxnum]+=1;
+					 break;
+				    case 4:
+					    stat_num[maxnum]+=1;
+					 break;
+				    case 5:
+					    stat_num[maxnum]+=1;
+					 break;					 
+				}
+			//	console.log(stat_num[0]+"-"+stat_num[1]);
+			//	console.log("\n");
+			}
+				max=stat_num[0],maxnum=0;
+				for(i=0;i<6;i++){
+				    if(stat_num[i]>max){
+					    max=stat_num[i];
+						maxnum=i;
+					}
+				}
+			//	console.log(maxnum+"\n");
+			
+			switch(maxnum)
+	{
+	 case 0:
+	var element = document.getElementById('img_emoji');
+ //   element.src = "https://emojipedia-us.s3.amazonaws.com/thumbs/160/facebook/65/pouting-face_1f621.png ";
+  element.src = "https://emojipedia-us.s3.amazonaws.com/thumbs/160/facebook/65/grinning-face_1f600.png";
+	   break;
+
+	 case 1:
+	var element = document.getElementById('img_emoji');
+    element.src = "https://emojipedia-us.s3.amazonaws.com/thumbs/160/facebook/65/face-with-open-mouth-and-cold-sweat_1f630.png ";
+	   break;
+
+	 case 2:	   
+	var element = document.getElementById('img_emoji');
+    element.src = "https://emojipedia-us.s3.amazonaws.com/thumbs/160/facebook/65/grinning-face_1f600.png";
+	   break;
+	case 3:
+	var element = document.getElementById('img_emoji');
+    element.src = "https://emojipedia-us.s3.amazonaws.com/thumbs/160/facebook/65/neutral-face_1f610.png ";
+	 case 4:
+	var element = document.getElementById('img_emoji');
+    element.src = "https://emojipedia-us.s3.amazonaws.com/thumbs/160/facebook/65/loudly-crying-face_1f62d.png ";
+	   break;
+	 case 5:
+	var element = document.getElementById('img_emoji');
+    element.src = "https://emojipedia-us.s3.amazonaws.com/thumbs/160/facebook/65/face-with-open-mouth_1f62e.png ";
+	   break;
+	}
+	    for(j=0;j<6;j++){
+            stat_proportion[j]=stat_num[j]/rdata.facenum;
+			console.log(stat_proportion[j]);
+        }
+		var option = {
+            title:{
+                text:'ECharts 数据统计'
+            },            
+            series:[{
+                name:'表情占比',
+                type:'pie',    
+                radius:'60%', 
+                data:[
+                    {value:stat_proportion[0],name:info_class[0]},
+                    {value:stat_proportion[1],name:info_class[1]},
+                    {value:stat_proportion[2],name:info_class[2]},
+                    {value:stat_proportion[3],name:info_class[3]},
+					{value:stat_proportion[4],name:info_class[4]},
+					{value:stat_proportion[5],name:info_class[5]},
+                ]
+            }]
+        };
+        //初始化echarts实例
+        var myChart = echarts.init(document.getElementById('chartmain'));
+
+        //使用制定的配置项和数据显示图表
+        myChart.setOption(option);
+
+              alert(rdata.errMsg+"，共识别出"+rdata.facenum+"张人脸");
+            }).fail(function(err){
+                console.error(err);
+            });
+        });
+            //dataURL change to File
+            function dataURLtoFile(dataurl, filename) {
+                    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                    while(n--){
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+                    return new File([u8arr], filename, {type:mime});
+            }
+            </script>
+	</body>
+</html>
